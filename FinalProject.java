@@ -44,9 +44,6 @@ public class FinalProject extends JFrame {
 
     public static void main(String[] args){
         FinalProject frame = new FinalProject();
-
-        frame.pack();
-        frame.setVisible(true);
     }
 
     //hashmap to hold the circles that we'll be animating
@@ -74,7 +71,14 @@ public class FinalProject extends JFrame {
         this.setPreferredSize(new Dimension(Width, Height));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel main = new JPanel();
+        BufferedImage base = buildImage();
+
+        JPanel main = new JPanel(){
+            public void paintComponent(Graphics g){
+                    super.paintComponent(g); //asks the parent class to do its thing so that setup and cleanup will be taken care of
+                    g.drawImage(base, 0, 0, this);
+                }
+        };
         main.setLayout(new BorderLayout());
         Point p = new Point();
 
@@ -86,14 +90,16 @@ public class FinalProject extends JFrame {
 
         populateHashMap(currentPos.x, currentPos.y, 1, 1, 10);
 
-        BufferedImage base = buildImage();
-
         //for entry in hashmap, draw an ellipse
-        for(String c:(circles.keySet()))
+        for(String c:(circles.keySet())){
             p = circles.get(c);
             Graphics g = base.getGraphics();
             Graphics2D g2 = (Graphics2D)g;
             g2.draw(new Ellipse2D.Double(p.x, p.y, circleDiam, circleDiam));
+        }
+
+        this.pack();
+        this.setVisible(true);
 
         main.repaint(); //redraws the panel at some rate
     }
@@ -104,5 +110,4 @@ public class FinalProject extends JFrame {
 	    g.fillRect(0, 0, Width, Height);
 	    return im;
     }
-
 }
