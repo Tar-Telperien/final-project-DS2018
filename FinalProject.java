@@ -30,6 +30,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.Color;
 
 public class FinalProject extends JFrame {
 
@@ -43,7 +44,7 @@ public class FinalProject extends JFrame {
     static Point currentPos = new Point(initX, initY);
 
     public static void main(String[] args){
-        FinalProject frame = new FinalProject();
+        new FinalProject();
     }
 
     //hashmap to hold the circles that we'll be animating
@@ -61,17 +62,19 @@ public class FinalProject extends JFrame {
             Point Position = new Point(x, y);
             circles.put(Integer.toString(counter), Position);
             counter++;
-            x = x-xdist+circleR;
-            y=y-ydist+circleR;
-        }
+	    x = x-xdist+circleR;
+	    y=y-ydist+circleR;
+	}
     }
+
+    BufferedImage base;
 
     public FinalProject(){
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(Width, Height));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        BufferedImage base = buildImage();
+	base = buildImage(BufferedImage.TYPE_INT_RGB);
 
         JPanel main = new JPanel(){
             public void paintComponent(Graphics g){
@@ -98,13 +101,15 @@ public class FinalProject extends JFrame {
             g2.draw(new Ellipse2D.Double(p.x, p.y, circleDiam, circleDiam));
         }
 
-        this.pack();
-        this.setVisible(true);
+	add(main, BorderLayout.CENTER);
+
+        pack();
+        setVisible(true);
 
         main.repaint(); //redraws the panel at some rate
     }
 
-    BufferedImage buildImage(){
+    BufferedImage buildImage(int type){
 	    BufferedImage im = new BufferedImage(Width, Height, BufferedImage.TYPE_INT_RGB);
 	    Graphics g = im.getGraphics();
 	    g.fillRect(0, 0, Width, Height);
