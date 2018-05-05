@@ -1,18 +1,7 @@
 //MY COPY THAT I CAN EDIT
 
 /*
-THINGS DONE:
-
-THINGS NEEDING TO BE DONE:
-Create small buffered image to hold fractal. Fractal changes based off of mouse coordinates and moves with mouse.
-Create larger buffered image; overlay the smaller image over the larger. Use revelio function as prototype.
-Make solid black background.
-
-Useful pieces from GitHub:
-Steganography.java;
-
-Start by building a white box 41X41 that tracks the mouse location; overlay on black box.
-
+Build external file for buildFractalImage; make it a separate thread to speed things up. Right now, play with fractal.
 */
 
 import javax.swing.JFrame;
@@ -102,27 +91,27 @@ public class Amelia extends JFrame{
 
 	    for(int x = 0; x < WIDTH; x++){
 	        for(int y = 0; y < HEIGHT; y++){
-	            if(p.x <= x & x <= (p.x + FractalSize) & p.y <= y & y <= (p.y + FractalSize)){
-	                for(int a = (p.x + MouseDiff); a < (p.x + FractalSize); a++){
-	                    for(int b = (p.y + MouseDiff); b < (p.y + FractalSize); b++){
-		                    ComplexNumber z = new ComplexNumber((p.x - WIDTH/2), (p.y-HEIGHT/2));
+	            //if(p.x <= x & x <= (p.x + FractalSize) & p.y <= y & y <= (p.y + FractalSize)){
+	                //for(int a = (p.x - FractalSize); a < (p.x + FractalSize); a++){
+	                    //for(int b = (p.y - FractalSize); b < (p.y + FractalSize); b++){
+		                    ComplexNumber z = new ComplexNumber(p.x, p.y);
 		                    for(int i = 0; i < 10; i++){
 		                        z = z.multiply(z).add(c);
 		                    }
-		                    if(z.norm() > 5)
-		                        im.setRGB(a, b, 0xFF00FF00);
-		                    else if(z.norm() > 10)
-		                        im.setRGB(a, b, 0xFF0000FF);
+		                    if(z.norm() > 10)
+		                        //im.setRGB(a, b, 0xFF00FF00); NORMAL VERSION
+		                        im.setRGB(x, y, 0xFF00FF00);
 		                    else
-		                        im.setRGB(a, b, 0xFFFF0000);
+		                        //im.setRGB(a, b, 0xFFFF0000); NORMAL VERSION
+		                        im.setRGB(x, y, 0xFFFF0000);
 	                    }
 	                }
-	            }
-	            else{
-	                im.setRGB(x, y, 0xFF0000);
-	            }
-	        }
-	    }
+	            //}
+	            //else{
+	                //im.setRGB(x, y, 0xFF000000);
+	            //}
+	        //}
+	    //}
 	    return im;
     }
 
