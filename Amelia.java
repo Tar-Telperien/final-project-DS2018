@@ -68,14 +68,6 @@ public class Amelia extends JFrame{
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
 
-	    mainPanel.addMouseMotionListener(new MouseMotionAdapter(){ //something wrong with this line. Throws a NullPointerException, even when changed to "MouseAdapter". Not sure why. See https://stackoverflow.com/questions/218384/what-is-a-nullpointerexception-and-how-do-i-fix-it.
-	        public void mouseMoved(MouseEvent e) {
-	            p = MouseInfo.getPointerInfo().getLocation();
-	            processedImage = buildFractalImage(BufferedImage.TYPE_INT_ARGB, p);
-	            mainPanel.repaint();
-	        }
-	    });
-
 	    // Panel to hold the combined images
 	    mainPanel = new JPanel(){
 		    public void paintComponent(Graphics g){
@@ -83,7 +75,16 @@ public class Amelia extends JFrame{
 		        g.drawImage(processedImage, 0, 0, this);
 		    }
 	    };
+
 	    mainPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+	    mainPanel.addMouseMotionListener(new MouseMotionAdapter(){
+	        public void mouseMoved(MouseEvent e) {
+	            p = MouseInfo.getPointerInfo().getLocation();
+	            processedImage = buildFractalImage(BufferedImage.TYPE_INT_ARGB, p);
+	            mainPanel.repaint();
+	        }
+	    });
 
 	    add(mainPanel, BorderLayout.CENTER);
 
