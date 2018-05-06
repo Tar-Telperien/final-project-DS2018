@@ -39,6 +39,7 @@ public class Amelia extends JFrame{
     // Some Constants
     int WIDTH = 1000;
     int HEIGHT = 700;
+    double Scale = 200;
     int FractalSize = 41;
     int MouseDiff = 21;
     Point p = new Point((WIDTH/2), (HEIGHT/2));
@@ -91,27 +92,29 @@ public class Amelia extends JFrame{
 
 	    for(int x = 0; x < WIDTH; x++){
 	        for(int y = 0; y < HEIGHT; y++){
-	            //if(p.x <= x & x <= (p.x + FractalSize) & p.y <= y & y <= (p.y + FractalSize)){
-	                //for(int a = (p.x - FractalSize); a < (p.x + FractalSize); a++){
-	                    //for(int b = (p.y - FractalSize); b < (p.y + FractalSize); b++){
-		                    ComplexNumber z = new ComplexNumber(p.x, p.y);
-		                    for(int i = 0; i < 10; i++){
+	            if(p.x <= x & x <= (p.x + FractalSize) & p.y <= y & y <= (p.y + FractalSize)){
+	                for(int a = (p.x - FractalSize); a < (p.x + FractalSize); a++){
+	                    for(int b = (p.y - FractalSize); b < (p.y + FractalSize); b++){
+		                    ComplexNumber z = new ComplexNumber((x - WIDTH/2)/Scale, (y - HEIGHT/2)/Scale);
+		                    for(int i = 0; i < 12; i++){
 		                        z = z.multiply(z).add(c);
 		                    }
-		                    if(z.norm() > 10)
-		                        //im.setRGB(a, b, 0xFF00FF00); NORMAL VERSION
-		                        im.setRGB(x, y, 0xFF00FF00);
+		                    if(z.norm() > 5)
+		                        im.setRGB(a, b, 0xFF000080);
+		                    else if(z.norm() < 10)
+		                        im.setRGB(a, b, 0xFF00CC00);
+		                    //else if(z.norm() > 15)
+		                      //  im.setRGB(x, y, 0xFF8080FF);
 		                    else
-		                        //im.setRGB(a, b, 0xFFFF0000); NORMAL VERSION
-		                        im.setRGB(x, y, 0xFFFF0000);
+		                        im.setRGB(a, b, 0xFFFF0066);
 	                    }
 	                }
-	            //}
-	            //else{
-	                //im.setRGB(x, y, 0xFF000000);
-	            //}
-	        //}
-	    //}
+	            }
+	            else{
+	                im.setRGB(x, y, 0xFF000000);
+	            }
+	        }
+	    }
 	    return im;
     }
 
