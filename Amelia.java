@@ -1,9 +1,3 @@
-//MY COPY THAT I CAN EDIT
-
-/*
-Build external file for buildFractalImage; make it a separate thread to speed things up. Right now, play with fractal.
-*/
-
 import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.BorderLayout;
@@ -36,7 +30,7 @@ public class Amelia extends JFrame{
 
     JPanel mainPanel;
 
-    // Some Constants
+    //Constants
     int WIDTH = 1000;
     int HEIGHT = 700;
     double Scale = 200;
@@ -44,8 +38,9 @@ public class Amelia extends JFrame{
     int MouseDiff = 21;
     Point p = new Point((WIDTH/2), (HEIGHT/2));
 
-    // The files
+    //Buffered Images
     BufferedImage processedImage;
+    BufferedImage backgroundImage;
 
     public static void main(String[] args){
 	    new Amelia();
@@ -53,12 +48,15 @@ public class Amelia extends JFrame{
 
     public Amelia(){
 	    setPreferredSize(new Dimension(WIDTH, HEIGHT));
+	    processedImage = buildSolidImage(Color.BLACK, BufferedImage.TYPE_INT_ARGB);
+	    setBackgroundImage(processedImage);
+
 
 	    // When the user clicks the red "x", close the window
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
 
-	    // Panel to hold the combined images
+	    //Panel to hold the image
 	    mainPanel = new JPanel(){
 		    public void paintComponent(Graphics g){
 		        super.paintComponent(g);
@@ -68,10 +66,11 @@ public class Amelia extends JFrame{
 
 	    mainPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
+        //Mouse listener; updates the portion of the fractal shown with every movement of the mouse.
 	    mainPanel.addMouseMotionListener(new MouseMotionAdapter(){
 	        public void mouseMoved(MouseEvent e) {
 	            p = MouseInfo.getPointerInfo().getLocation();
-	            processedImage = buildFractalImage(BufferedImage.TYPE_INT_ARGB, p);
+	            revelio(p);
 	            mainPanel.repaint();
 	        }
 	    });
@@ -82,61 +81,50 @@ public class Amelia extends JFrame{
 	    setVisible(true);
     }
 
-
-    /**
-     * Build a simple image containing the given line of text
-     */
-    BufferedImage buildFractalImage(int type, Point p){
-	    BufferedImage im = new BufferedImage(WIDTH, HEIGHT, type);
-	    ComplexNumber c = new ComplexNumber (.3, .7);
-
-	    for(int x = 0; x < WIDTH; x++){
-	        for(int y = 0; y < HEIGHT; y++){
-	            if(p.x <= x & x <= (p.x + FractalSize) & p.y <= y & y <= (p.y + FractalSize)){
-	                for(int a = (p.x - FractalSize); a < (p.x + FractalSize); a++){
-	                    for(int b = (p.y - FractalSize); b < (p.y + FractalSize); b++){
-		                    ComplexNumber z = new ComplexNumber((x - WIDTH/2)/Scale, (y - HEIGHT/2)/Scale);
-		                    for(int i = 0; i < 12; i++){
-		                        z = z.multiply(z).add(c);
-		                    }
-		                    if(z.norm() > 5)
-		                        im.setRGB(a, b, 0xFF000080);
-		                    else if(z.norm() < 10)
-		                        im.setRGB(a, b, 0xFF00CC00);
-		                    //else if(z.norm() > 15)
-		                      //  im.setRGB(x, y, 0xFF8080FF);
-		                    else
-		                        im.setRGB(a, b, 0xFFFF0066);
-	                    }
-	                }
-	            }
-	            else{
-	                im.setRGB(x, y, 0xFF000000);
-	            }
-	        }
-	    }
-	    return im;
+    //Builds the black background image
+    BufferedImage buildSolidImage(Color c, int type){
+        BufferedImage im = new BufferedImage(WIDTH, HEIGHT, type);
+        Graphics g = im.getGraphics();
+        g.setColor(c);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        return im;
     }
 
-/*    void revelio(int x, int y){
-        int mask = 0x00010000;
-        int radius = 40;
-        BufferedImage newProcessedImage = //black box
-            new BufferedImage(2*radius + 1, 2*radius + 1, BufferedImage.TYPE_INT_ARGB);
-        for(int i = y-radius; i <= y + radius; i++){
-            if(i < 0 || i >= processedImage.getHeight()) continue;
-                for(int j = x-radius; j <= x + radius; j++){
-                    if(j < 0 || j >= processedImage.getWidth()) continue;
-                    int rgb = (processedImage.getRGB(j, i) & mask) == 0 ?
-                    Color.black.getRGB() : Color.white.getRGB();
-                    int alpha = 255 - (int)(255 * Math.sqrt((x - j)*(x - j) + (y - i)*(y - i))) / radius;
-                    if(alpha < 0) alpha = 0;
-                        newProcessedImage.setRGB(j - (x - radius), i - (y - radius), (rgb & 0x00FFFFFF) + (alpha << 24));
-                }
-            }
-        Graphics2D g = (Graphics2D) processedImage.getGraphics();
-        g.drawImage(newProcessedImage, x - radius, y - radius, null);
+    //Sets the permanent background image to which the revelio function will revert
+    void setBackgroundImage(BufferedImage im){
+        ColorModel c = im.getColorModel();
+        boolean iap = c.isAlphaPremultiplied();
+        WritableRaster raster = im.copyData(null);
+        backgroundImage = new BufferedImage(c, raster, iap, null);
+    }
 
-        mainPanel.repaint();
-    }*/ //Do I still need this? I may have moved its functionality, into buildFractalImage.
+    //Draws a portion of a fractal on top of the background image.
+    void revelio(Point p){
+        ComplexNumber cNum = new ComplexNumber (0.3, 0.7);
+
+        // Restart with the saved image
+        ColorModel c = backgroundImage.getColorModel();
+        boolean iap = c.isAlphaPremultiplied();
+        WritableRaster raster = backgroundImage.copyData(null);
+        processedImage = new BufferedImage(c, raster, iap, null);
+
+        for(int x = (p.x - FractalSize); x < (p.x + FractalSize); x++){
+	        for(int y = (p.y - FractalSize); y < (p.y + FractalSize); y++){
+	            //ComplexNumber cNum = new ComplexNumber (p.x/50.0, p.y/50.0);
+		        ComplexNumber z = new ComplexNumber((x - WIDTH/2)/Scale, (y - HEIGHT/2)/Scale);
+		        //ComplexNumber z = new ComplexNumber((x-p.x)/10.0, (y-p.y)/10.0);
+		        for(int i = 0; i < 12; i++){
+		            z = z.multiply(z).add(cNum);
+		        }
+		        if(z.norm() > 5)
+		            processedImage.setRGB(x, y, 0xFF000080);
+		        else if(z.norm() < 10)
+		            processedImage.setRGB(x, y, 0xFF00CC00);
+		        //else if(z.norm() > 15)
+		            //  processedImage.setRGB(x, y, 0xFF8080FF);
+		        else
+		            processedImage.setRGB(x, y, 0xFFFF0066);
+	        }
+	    }
+    }
 }
